@@ -19,10 +19,10 @@ A \code{data.frame} with one row per marker and three columns:
 \item{\code{score}}{Per-marker score \eqn{X_m = -\log_{10}(p_m) - \xi}.}
 \item{\code{lindley_score}}{Lindley process value \eqn{h_m \ge 0}.}
 \item{\code{lindley_thresh}}{Genome-wide threshold (same value in every row),
-computed by \code{\link[=lindley_thresh]{lindley_thresh()}}.}
+computed by \code{lindley_thresh()}.}
 }
 Markers where \code{lindley_score > lindley_thresh} are in a significant
-association peak. Use \code{\link[=windows]{windows()}} to label distinct peaks.
+association peak. Use \code{windows()} to label distinct peaks.
 }
 \description{
 The main entry point for local score analysis. Transforms raw p-values into
@@ -31,9 +31,9 @@ genome-wide significance threshold.
 }
 \examples{
 set.seed(42)
-p <- c(runif(20, 0.1, 1), runif(5, 1e-5, 1e-4), runif(20, 0.1, 1))
-result <- lindley_p(p, xi = 2)
+p = c(runif(20, 0.1, 1), runif(5, 1e-5, 1e-4), runif(20, 0.1, 1))
+result = lindley_p(p, xi = 2)
 head(result)
 # Identify peak windows
-result$window <- windows(result$lindley_score > result$lindley_thresh)
+result$window = windows(result$lindley_score > result$lindley_thresh)
 }

@@ -20,7 +20,7 @@ Compute the absolute lag-1 autocorrelation of a numeric vector
 \details{
 Adjacent markers in LD tend to have correlated association p-values. This
 function estimates that correlation as the absolute lag-1 Pearson correlation
-of the raw p-value vector — a simple but effective surrogate for \eqn{\rho}.
+of the raw p-value vector - a simple but effective surrogate for \eqn{\rho}.
 The absolute value is taken because both positive and negative lag-1
 correlations inflate the local score null distribution equally.
 }

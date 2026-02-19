@@ -18,7 +18,7 @@ negative. A genomic region is declared significant when this running total
 exceeds a threshold derived from extreme-value (Gumbel) theory.
 }
 
-\subsection{Formulae (Fariello et al. 2017, Equations 1–4)}{
+\subsection{Formulae (Fariello et al. 2017, Equations 1-4)}{
 
 \strong{Score per marker} (Eq. 1):
 \deqn{X_m = -\log_{10}(p_m) - \xi}
@@ -31,7 +31,7 @@ with \eqn{p_m < 10^{-\xi}} contribute positively to the process.
 \strong{Local score} (Eq. 2):
 \deqn{H_M = \max_{1 \le m \le M} h_m}
 
-\strong{Null CDF — Gumbel approximation} (Eq. 3):
+\strong{Null CDF - Gumbel approximation} (Eq. 3):
 \deqn{P(H_M \le x) \approx 1 - \exp\!\bigl(-\exp(a_{M,\rho} + b_{M,\rho}\, x)\bigr)}
 
 \strong{Significance threshold} (Eq. 4):
@@ -59,11 +59,11 @@ The polynomial coefficients \eqn{c_i, d_i} were estimated by simulation over
 Fariello, M.-I., Boitard, S., Mercier, S., Robelin, D., Faraut, T.,
 Liaubet, L., ... & Servin, B. (2017). Accounting for linkage disequilibrium
 in genome scans for selection without panels of controls.
-\emph{Molecular Ecology}, 26(22), 5994–6009.
+\emph{Molecular Ecology}, 26(22), 5994-6009.
 \doi{10.1111/mec.14141}
 
 Bonhomme, M., et al. (2019). Genomic signature of selective sweeps illuminates
-adaptation of \emph{Medicago truncatula}. \emph{Molecular Ecology}, 28(21), 4751–4771.
+adaptation of \emph{Medicago truncatula}. \emph{Molecular Ecology}, 28(21), 4751-4771.
 \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6781128/}
 }
 }

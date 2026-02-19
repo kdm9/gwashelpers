@@ -30,7 +30,7 @@ Consecutive positions where \eqn{h_m > t} (threshold \eqn{t}) constitute an
 \emph{excursion interval} corresponding to a genomic association peak.
 }
 \examples{
-scores <- c(0.5, -0.3, 0.8, -1.0, 0.2, 0.3)
+scores = c(0.5, -0.3, 0.8, -1.0, 0.2, 0.3)
 lindley(scores)
 # [1] 0.5 0.2 1.0 0.0 0.2 0.5
 max(lindley(scores))  # local score = 1.0

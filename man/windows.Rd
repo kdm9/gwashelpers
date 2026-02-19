@@ -8,7 +8,7 @@ windows(state)
 }
 \arguments{
 \item{state}{Logical vector. Typically the result of
-\code{result$lindley_score > result$lindley_thresh} from \code{\link[=lindley_p]{lindley_p()}}.}
+\code{result$lindley_score > result$lindley_thresh} from \code{lindley_p()}.}
 }
 \value{
 Integer vector of the same length as \code{state}. Each maximal run of
@@ -22,12 +22,12 @@ enumerating distinct association peaks detected by the local score.
 }
 \details{
 Each contiguous block of \code{TRUE} positions corresponds to a genomic excursion
-interval — the span of markers within a single association peak. The integer
+interval - the span of markers within a single association peak. The integer
 labels allow downstream grouping (e.g., \code{split()} or \code{dplyr::group_by()})
 to extract and summarize each peak separately.
 }
 \examples{
-state <- c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE)
+state = c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE)
 windows(state)
 # [1] NA  1  1 NA  2 NA  3  3
 }

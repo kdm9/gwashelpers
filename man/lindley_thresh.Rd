@@ -9,12 +9,12 @@ lindley_thresh(pval, xi = 2, alpha = 0.05)
 \arguments{
 \item{pval}{Numeric vector of raw p-values (values in \eqn{[0, 1]}).
 Used to compute both the number of markers \eqn{M = \text{length}(pval)}
-and the lag-1 autocorrelation \eqn{\rho} via \code{\link[=autocor]{autocor()}}.}
+and the lag-1 autocorrelation \eqn{\rho} via \code{autocor()}.}
 
 \item{xi}{Integer tuning parameter; must be 1, 2, 3, or 4. Controls the
 p-value cut-off: only markers with \eqn{p < 10^{-\xi}} contribute
 positively to the Lindley process. Must match the \code{xi} used when computing
-scores with \code{\link[=lindley_p]{lindley_p()}}.}
+scores with \code{lindley_p()}.}
 
 \item{alpha}{Numeric family-wise type-I error rate (default 0.05). The
 threshold \eqn{t} satisfies \eqn{P(H_M > t) \le \alpha} under the null.}
@@ -35,9 +35,9 @@ The Gumbel location and scale parameters are approximated as polynomials in
 \deqn{a_{M,\rho} = \log(M) + c_3\rho^3 + c_2\rho^2 + c_1\rho + c_0}
 \deqn{b_{M,\rho} = d_2\rho^2 + d_1\rho + d_0}
 
-Polynomial coefficients (rows = polynomial degree, columns = \eqn{\xi}):\tabular{lllll}{
+Polynomial coefficients (rows = polynomial term, columns = \eqn{\xi}):\tabular{lllll}{
    Term \tab \eqn{\xi=1} \tab \eqn{\xi=2} \tab \eqn{\xi=3} \tab \eqn{\xi=4} \cr
-   \eqn{a}: \eqn{\rho^3} \tab -5.50 \tab 2.04 \tab 2.04 \tab 0.22 \cr
+   \eqn{a}: \eqn{\rho^3} \tab -5.50 \tab 2.47 \tab 2.04 \tab 0.22 \cr
    \eqn{a}: \eqn{\rho^2} \tab 6.76 \tab -4.16 \tab -5.76 \tab -4.08 \cr
    \eqn{a}: \eqn{\rho} \tab -5.66 \tab -1.82 \tab 1.04 \tab 1.16 \cr
    \eqn{a}: intercept \tab -2.51 \tab -4.58 \tab -6.95 \tab -9.16 \cr
@@ -57,6 +57,6 @@ is the conventional notation.
 }
 \examples{
 set.seed(1)
-p <- runif(1000)
+p = runif(1000)
 lindley_thresh(p, xi = 2, alpha = 0.05)
 }
