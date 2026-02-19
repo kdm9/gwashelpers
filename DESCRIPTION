@@ -1,0 +1,10 @@
+Package: gwashelpers
+Title: Helpers to post-process gwas results
+Version: 0.0.0.9000
+Authors@R: 
+    person("Kevin", "Murray", , "foss@kdmurray.id.au", role = c("aut", "cre"))
+Description: A variety of functions to post-process gwas findings
+License: AGPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
