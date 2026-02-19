@@ -1,10 +1,20 @@
 Package: gwashelpers
-Title: Helpers to post-process gwas results
+Title: Local Score / Lindley Process Methods for GWAS Post-Processing
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person("Kevin", "Murray", , "foss@kdmurray.id.au", role = c("aut", "cre"))
-Description: A variety of functions to post-process gwas findings
+Description: Implements the local score (Lindley process) approach to aggregating
+    weak association signals from nearby, correlated markers in genome-wide
+    association studies (GWAS). Rather than treating each SNP independently,
+    the method accumulates signal along the chromosome and resets to zero when
+    cumulative evidence becomes negative, then applies a Gumbel-theory threshold
+    to call significance. Methods follow Fariello et al. (2017)
+    <doi:10.1111/mec.14141> and Bonhomme et al. (2019)
+    <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6781128/>.
 License: AGPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
