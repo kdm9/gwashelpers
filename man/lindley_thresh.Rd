@@ -14,7 +14,7 @@ and the lag-1 autocorrelation \eqn{\rho} via \code{autocor()}.}
 \item{xi}{Integer tuning parameter; must be 1, 2, 3, or 4. Controls the
 p-value cut-off: only markers with \eqn{p < 10^{-\xi}} contribute
 positively to the Lindley process. Must match the \code{xi} used when computing
-scores with \code{lindley_p()}.}
+scores with \code{local_score()}.}
 
 \item{alpha}{Numeric family-wise type-I error rate (default 0.05). The
 threshold \eqn{t} satisfies \eqn{P(H_M > t) \le \alpha} under the null.}

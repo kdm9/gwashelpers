@@ -16,6 +16,9 @@ each SNP independently (which ignores LD structure). The \strong{Lindley process
 chromosome, resetting to zero whenever the cumulative evidence becomes
 negative. A genomic region is declared significant when this running total
 exceeds a threshold derived from extreme-value (Gumbel) theory.
+
+The primary entry-point is the function local_score(), which takes a vector
+of p-values and generates the local scores as a data frame.
 }
 
 \subsection{Formulae (Fariello et al. 2017, Equations 1-4)}{

@@ -13,6 +13,9 @@
 #' negative. A genomic region is declared significant when this running total
 #' exceeds a threshold derived from extreme-value (Gumbel) theory.
 #'
+#' The primary entry-point is the function local_score(), which takes a vector
+#' of p-values and generates the local scores as a data frame.
+#'
 #' ## Formulae (Fariello et al. 2017, Equations 1-4)
 #'
 #' **Score per marker** (Eq. 1):
@@ -135,7 +138,7 @@ autocor = function(x) {
 #' @param xi Integer tuning parameter; must be 1, 2, 3, or 4. Controls the
 #'   p-value cut-off: only markers with \eqn{p < 10^{-\xi}} contribute
 #'   positively to the Lindley process. Must match the `xi` used when computing
-#'   scores with `lindley_p()`.
+#'   scores with `local_score()`.
 #' @param alpha Numeric family-wise type-I error rate (default 0.05). The
 #'   threshold \eqn{t} satisfies \eqn{P(H_M > t) \le \alpha} under the null.
 #'
@@ -211,52 +214,6 @@ lindley_thresh = function(pval, xi = 2, alpha = 0.05) {
 }
 
 
-#' Apply the local score method to a vector of p-values
-#'
-#' The main entry point for local score analysis. Transforms raw p-values into
-#' per-marker scores, computes the Lindley process, and attaches the
-#' genome-wide significance threshold.
-#'
-#' @param p Numeric vector of raw p-values (must be in \eqn{[0, 1]}).
-#' @param xi Integer tuning parameter (1, 2, 3, or 4). Controls the p-value
-#'   threshold for positive contribution: only \eqn{p < 10^{-\xi}} markers
-#'   receive a positive score \eqn{X_m = -\log_{10}(p) - \xi > 0}.
-#'
-#' @return A `data.frame` with one row per marker and three columns:
-#'   \describe{
-#'     \item{`score`}{Per-marker score \eqn{X_m = -\log_{10}(p_m) - \xi}.}
-#'     \item{`lindley_score`}{Lindley process value \eqn{h_m \ge 0}.}
-#'     \item{`lindley_thresh`}{Genome-wide threshold (same value in every row),
-#'       computed by `lindley_thresh()`.}
-#'   }
-#'   Markers where `lindley_score > lindley_thresh` are in a significant
-#'   association peak. Use `windows()` to label distinct peaks.
-#'
-#' @export
-#'
-#' @examples
-#' set.seed(42)
-#' p = c(runif(20, 0.1, 1), runif(5, 1e-5, 1e-4), runif(20, 0.1, 1))
-#' result = lindley_p(p, xi = 2)
-#' head(result)
-#' # Identify peak windows
-#' result$window = windows(result$lindley_score > result$lindley_thresh)
-local_score = function(p, xi = 2) {
-    if (any(p > 1 | p < 0)) {
-        stop("p values should be provided as-is, i.e. values between 0-1")
-    }
-    score = -log10(p) - xi
-    lscore = lindley(score)
-    thresh = lindley_thresh(p, xi)
-    return(data.frame(
-        score = score,
-        lindley_score = lscore,
-        lindley_thresh = thresh,
-        lindley_window = window(lscore>thresh)
-    ))
-}
-
-
 #' Label consecutive runs of TRUE as distinct genomic windows
 #'
 #' Given a logical vector (typically `lindley_score > lindley_thresh`), assigns
@@ -264,7 +221,7 @@ local_score = function(p, xi = 2) {
 #' enumerating distinct association peaks detected by the local score.
 #'
 #' @param state Logical vector. Typically the result of
-#'   `result$lindley_score > result$lindley_thresh` from `lindley_p()`.
+#'   `result$lindley_score > result$lindley_thresh` from `local_score()`.
 #'
 #' @return Integer vector of the same length as `state`. Each maximal run of
 #'   consecutive `TRUE` values is labeled with a unique positive integer
@@ -298,3 +255,49 @@ windows = function(state) {
     }
     res
 }
+
+
+#' Apply the local score method to a vector of p-values
+#'
+#' The main entry point for local score analysis. Transforms raw p-values into
+#' per-marker scores, computes the Lindley process, and attaches the
+#' genome-wide significance threshold.
+#'
+#' @param p Numeric vector of raw p-values (must be in \eqn{[0, 1]}).
+#' @param xi Integer tuning parameter (1, 2, 3, or 4). Controls the p-value
+#'   threshold for positive contribution: only \eqn{p < 10^{-\xi}} markers
+#'   receive a positive score \eqn{X_m = -\log_{10}(p) - \xi > 0}.
+#'
+#' @return A `data.frame` with one row per marker and four columns:
+#'   \describe{
+#'     \item{`score`}{Per-marker score \eqn{X_m = -\log_{10}(p_m) - \xi}.}
+#'     \item{`lindley_score`}{Lindley process value \eqn{h_m \ge 0}.}
+#'     \item{`lindley_thresh`}{Genome-wide threshold (same value in every row),
+#'       computed by `lindley_thresh()`.}
+#'     \item{`lindley_window`}{Integer window label from `windows()`: consecutive
+#'       markers above the threshold share the same label (1, 2, 3, ...);
+#'       markers below the threshold are `NA`.}
+#'   }
+#'
+#' @export
+#'
+#' @examples
+#' set.seed(42)
+#' p = c(runif(20, 0.1, 1), runif(5, 1e-5, 1e-4), runif(20, 0.1, 1))
+#' result = local_score(p, xi = 2)
+#' head(result)
+local_score = function(p, xi = 2) {
+    if (any(p > 1 | p < 0)) {
+        stop("p values should be provided as-is, i.e. values between 0-1")
+    }
+    score = -log10(p) - xi
+    lscore = lindley(score)
+    thresh = lindley_thresh(p, xi)
+    return(data.frame(
+        score = score,
+        lindley_score = lscore,
+        lindley_thresh = thresh,
+        lindley_window = windows(lscore > thresh)
+    ))
+}
+

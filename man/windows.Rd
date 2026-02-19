@@ -8,7 +8,7 @@ windows(state)
 }
 \arguments{
 \item{state}{Logical vector. Typically the result of
-\code{result$lindley_score > result$lindley_thresh} from \code{lindley_p()}.}
+\code{result$lindley_score > result$lindley_thresh} from \code{local_score()}.}
 }
 \value{
 Integer vector of the same length as \code{state}. Each maximal run of
