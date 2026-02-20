@@ -237,9 +237,9 @@ lindley_thresh = function(pval, xi = 2, alpha = 0.05) {
 #'
 #' @examples
 #' state = c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE)
-#' windows(state)
+#' find_windows(state)
 #' # [1] NA  1  1 NA  2 NA  3  3
-windows = function(state) {
+find_windows = function(state) {
     res = numeric(length(state))
     n = 0
     last = FALSE
@@ -274,7 +274,7 @@ windows = function(state) {
 #'     \item{`lindley_score`}{Lindley process value \eqn{h_m \ge 0}.}
 #'     \item{`lindley_thresh`}{Genome-wide threshold (same value in every row),
 #'       computed by `lindley_thresh()`.}
-#'     \item{`lindley_window`}{Integer window label from `windows()`: consecutive
+#'     \item{`lindley_window`}{Integer window label from `find_windows()`: consecutive
 #'       markers above the threshold share the same label (1, 2, 3, ...);
 #'       markers below the threshold are `NA`.}
 #'   }
@@ -297,7 +297,7 @@ local_score = function(p, xi = 2) {
         score = score,
         lindley_score = lscore,
         lindley_thresh = thresh,
-        lindley_window = windows(lscore > thresh)
+        lindley_window = find_windows(lscore > thresh)
     ))
 }
 

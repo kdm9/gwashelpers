@@ -160,19 +160,19 @@ test_that("lindley_thresh returns NULL for invalid xi", {
 # Helper functions #
 ####################
 
-test_that("windows() labels consecutive TRUE runs correctly", {
+test_that("find_windows() labels consecutive TRUE runs correctly", {
     state = c(FALSE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE, TRUE)
     expected = c(NA_real_, 1, 1, NA_real_, 2, NA_real_, 3, 3)
-    result = windows(state)
+    result = find_windows(state)
     expect_equal(result, expected)
 })
 
-test_that("windows() returns all NA for all-FALSE input", {
-    expect_equal(windows(c(FALSE, FALSE, FALSE)), c(NA_real_, NA_real_, NA_real_))
+test_that("find_windows() returns all NA for all-FALSE input", {
+    expect_equal(find_windows(c(FALSE, FALSE, FALSE)), c(NA_real_, NA_real_, NA_real_))
 })
 
-test_that("windows() labels a single TRUE run as window 1", {
-    expect_equal(windows(c(TRUE, TRUE, TRUE)), c(1, 1, 1))
+test_that("find_windows() labels a single TRUE run as window 1", {
+    expect_equal(find_windows(c(TRUE, TRUE, TRUE)), c(1, 1, 1))
 })
 
 

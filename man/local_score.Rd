@@ -20,7 +20,7 @@ A \code{data.frame} with one row per marker and four columns:
 \item{\code{lindley_score}}{Lindley process value \eqn{h_m \ge 0}.}
 \item{\code{lindley_thresh}}{Genome-wide threshold (same value in every row),
 computed by \code{lindley_thresh()}.}
-\item{\code{lindley_window}}{Integer window label from \code{windows()}: consecutive
+\item{\code{lindley_window}}{Integer window label from \code{find_windows()}: consecutive
 markers above the threshold share the same label (1, 2, 3, ...);
 markers below the threshold are \code{NA}.}
 }
