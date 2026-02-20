@@ -1,0 +1,177 @@
+---
+title: "Local Score Analysis for GWAS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Local Score Analysis for GWAS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment  = "#>",
+    fig.width  = 7,
+    fig.height = 4
+)
+```
+
+## Why local scores?
+
+Standard GWAS tests each marker independently and applies a FDR correction on
+resulting p-values, e.g. by Benjamini-Hochberg or Bonferroni methods.  While
+this controls for false positive discoveries, nearby markers are treated as
+independent. This is rarely the case, as markers in linkage disequilibrium (LD)
+carry correlated signal. This over-correction can lead to
+moderately-significant associations being lost. 
+
+The "local score" method (Fariello *et al.* 2017; Bonhomme et al 2019)
+addresses this by aggregating accumulated signal over markers within a local
+genome window. In simple terms, it compares the integrated signal over a run of
+at least weakly-associated markers to a distribution of such windows under the
+null (using Gumbel extreme-value theory), thereby distinguishing assocations as
+longer than expected windows of higher than expected association. In doing so,
+we detect associations even if no individual marker passes the global FDR
+threshold.
+
+
+## Basic usage
+
+```{r load}
+library(gwashelpers)
+```
+
+We simulate a chromosome with 500 markers.  Most markers are non-associated
+(p-values drawn from a roughly uniform null), but positions 240–260 harbour a
+genuine signal with very small p-values.
+
+```{r simulate}
+set.seed(42)
+n = 500
+
+# Null markers: uniform p-values, mildly autocorrelated to mimic LD
+p = numeric(n)
+p[1] = runif(1)
+for (i in 2:n) p[i] = 0.2 * p[i - 1] + 0.8 * runif(1)
+
+# Inject a signal cluster at positions 240-260
+p[240:260] = runif(21, min = 1e-6, max = 5e-4)
+```
+
+Run `local_score()` to obtain per-marker scores, Lindley process values,
+the genome-wide threshold, and window labels in a single data frame:
+
+```{r run}
+result = local_score(p, xi = 2)
+head(result)
+```
+
+The four columns are:
+
+| Column | Meaning |
+|---|---|
+| `score` | $X_m = -\log_{10}(p_m) - \xi$ |
+| `lindley_score` | Lindley process value $h_m \ge 0$ |
+| `lindley_thresh` | Genome-wide threshold $t$ (constant across rows) |
+| `lindley_window` | Integer label for each excursion above $t$; `NA` below |
+
+The threshold is shared by all markers because it depends only on the number
+of markers and their average autocorrelation, not on position:
+
+```{r thresh}
+unique(result$lindley_thresh)
+```
+
+
+## Visualising the result
+
+```{r plot, fig.cap = "Lindley process along a simulated chromosome. The dashed line is the genome-wide threshold; shaded regions are significant windows."}
+thresh = unique(result$lindley_thresh)
+pos    = seq_along(result$lindley_score)
+
+# Base plot
+plot(pos, result$lindley_score, type = "l", col = "steelblue",
+     xlab = "Marker position", ylab = "Lindley score",
+     main = "Local score across simulated chromosome")
+abline(h = thresh, lty = 2, col = "firebrick", lwd = 1.5)
+
+# Shade significant windows
+in_window = !is.na(result$lindley_window)
+if (any(in_window)) {
+    runs = rle(in_window)
+    ends   = cumsum(runs$lengths)
+    starts = ends - runs$lengths + 1
+    for (k in which(runs$values)) {
+        rect(starts[k] - 0.5, 0, ends[k] + 0.5, max(result$lindley_score),
+             col = adjustcolor("gold", alpha.f = 0.3), border = NA)
+    }
+    # Re-draw line on top of shading
+    lines(pos, result$lindley_score, col = "steelblue")
+    abline(h = thresh, lty = 2, col = "firebrick", lwd = 1.5)
+}
+
+legend("topleft", legend = c("Lindley score", "Threshold", "Significant window"),
+       col = c("steelblue", "firebrick", adjustcolor("gold", alpha.f = 0.6)),
+       lty = c(1, 2, NA), pch = c(NA, NA, 15), bty = "n")
+```
+
+
+## Extracting significant peaks
+
+The `lindley_window` column labels each contiguous run of markers above the
+threshold with a distinct integer.  Split the result to summarise each peak:
+
+```{r peaks}
+sig = result[!is.na(result$lindley_window), ]
+
+if (nrow(sig) > 0) {
+    peaks = do.call(rbind, lapply(split(sig, sig$lindley_window), function(w) {
+        data.frame(
+            window     = w$lindley_window[1],
+            start      = which(result$lindley_window == w$lindley_window[1])[1],
+            end        = tail(which(result$lindley_window == w$lindley_window[1]), 1),
+            peak_score = max(w$lindley_score),
+            n_markers  = nrow(w)
+        )
+    }))
+    print(peaks, row.names = FALSE)
+} else {
+    message("No markers exceeded the threshold.")
+}
+```
+
+The peak score is the maximum $h_m$ within the window.  All markers in the
+window share the same integer label, so downstream code can group them by
+`lindley_window` to retrieve the best-candidate SNP or to annotate the
+associated genomic region.
+
+
+## Choosing xi
+
+The parameter `xi` controls which markers contribute positively: only signals
+with p values below $10^{-{\xi}}$ contribute to the signal. A larger `xi`
+ignores moderately-significant markers and demands stronger individual signal
+before a region counts as associated.  The threshold is recomputed for each
+`xi` value, so both the score and the significance criterion change together.
+
+```{r xi_comparison}
+r1 = local_score(p, xi = 1)
+r2 = local_score(p, xi = 2)
+
+cat(sprintf("xi=1: threshold = %.2f, peak Lindley score = %.2f\n",
+            unique(r1$lindley_thresh), max(r1$lindley_score)))
+cat(sprintf("xi=2: threshold = %.2f, peak Lindley score = %.2f\n",
+            unique(r2$lindley_thresh), max(r2$lindley_score)))
+```
+
+
+## Reference
+
+Fariello, M.-I. *et al.* (2017). Accounting for linkage disequilibrium in
+genome scans for selection without individual genotypes: The local score
+approach. *Molecular Ecology*, <https://doi.org/10.1111/mec.14141>
+
+Bonhomme, M. *et al.* (2019) A local score approach improves
+GWAS resolution and detects minor QTL: application to Medicago truncatula
+quantitative disease resistance to multiple Aphanomyces euteiches isolates.
+*Heredity* <https://doi.org/10.1038/s41437-019-0235-x>
